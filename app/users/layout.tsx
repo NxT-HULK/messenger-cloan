@@ -1,14 +1,22 @@
 import Sidebar from '@/app/components/sidebar/Sidebar'
+import getUsers from '../actions/getUsers'
+import UserList from './components/UserList'
 interface LayoutProps {
     children: React.ReactNode
 }
 
-const Layout: React.FC<LayoutProps> = ({
+const Layout: React.FC<LayoutProps> = async ({
     children
 }) => {
+
+    const users = await getUsers()
+
     return (
         <Sidebar>
-            <div className={` h-full `}>{children}</div>
+            <div className={`h-full`}>
+                <UserList items={users} />
+                {children}
+            </div>
         </Sidebar>
     )
 }

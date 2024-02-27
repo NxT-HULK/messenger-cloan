@@ -24,35 +24,30 @@ export const authOptions: AuthOptions = {
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
-                try {
-                    if (!credentials?.email || !credentials?.password) {
-                        throw new Error("Invalid credentials");
-                    }
-
-                    const user = await prisma.user.findFirst({
-                        where: {
-                            email: credentials.email
-                        }
-                    });
-
-                    if (!user) {
-                        throw new Error("User not found");
-                    }
-
-                    const isCorrectPassword = await bcrypt.compare(
-                        credentials.password,
-                        user.hashPassword
-                    );
-
-                    if (!isCorrectPassword) {
-                        throw new Error("Incorrect password");
-                    }
-
-                    return user;
-                } catch (error) {
-                    console.error("Authorization error: ", error);
-                    throw new Error("Authentication failed");
+                if (!credentials?.email || !credentials?.password) {
+                    throw new Error("Invalid credentials");
                 }
+
+                const user = await prisma.user.findUnique({
+                    where: {
+                        email: credentials.email
+                    }
+                });
+
+                if (!user || !user?.hashPassword) {
+                    throw new Error("User not found");
+                }
+
+                const isCorrectPassword = await bcrypt.compare(
+                    credentials.password,
+                    user.hashPassword
+                );
+
+                if (!isCorrectPassword) {
+                    throw new Error("Incorrect credential");
+                }
+
+                return user;
             }
         })
     ],
